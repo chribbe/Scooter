@@ -138,41 +138,32 @@ require([
 				logo.setComponent(new AmmoComponent({mass:0, useWorldTransform:true}));
 				car.setComponent(new AmmoComponent({mass:350, useWorldBounds:true, showBounds:false}));
 
-				vehicleHelper = new VehicleHelper(goo, ammoSystem, car, 2, 0.6, false);
+				vehicleHelper = new VehicleHelper(goo, ammoSystem, car, 3, 0.6, false);
 				vehicleHelper.setWheelAxle( 1, 0, 0);
 				//vehicleHelper.doCreateDebugTire = true;
 				vehicleHelper.addDefaultWheels();
 				var vehicle = vehicleHelper.vehicle;
 				
 				var cam = loader.getCachedObjectForRef('entities/DefaultToolCamera.entity');
-				//var camScript=new OrbitCamControlScript({domElement : goo.renderer.domElement,//spherical : new Vector3(60, 5.15, Math.PI/7)});
-				//cam.scriptComponent.scripts[0] = camScript;
-				//var camScript = cam.scriptComponent.scripts[0];
+
 				cam.scriptComponent.scripts = [];
-				
-				car.transformComponent.attachChild( cam.transformComponent);
-				
-				cam.transformComponent.setTranslation(0,10,-10);
-				cam.transformComponent.transform.rotation.lookAt( new Vector3(0,1,-1), new Vector3(0,1,0)); //setRotation();
-				
-	
-				var temp;
-				goo.callbacks.push(function() {
+
+			    var camOffset = new Vector3(0,15,-15);
+                var camPos = new Vector3();
+
+                goo.callbacks.push(function(tpf) {
 					vehicleHelper.setSteeringValue( keys[37] * 0.3 + keys[39] * -0.3);
 					vehicleHelper.applyEngineForce( keys[38] * -700 + keys[40] * 500);
 					vehicleHelper.updateWheelTransform();
-					
-					
-					//temp = car.transformComponent.worldTransform.rotation.toAngles( temp);
-					//console.log( car.transformComponent.worldTransform.translation.x);
-					//camScript.goingToLookAt.set( car.transformComponent.worldTransform.translation);
-					//camScript.lookAtPoint.lerp( car.transformComponent.worldTransform.translation, 0.5);
-					//camScript.targetSpherical.add_d( 0, 0.01, 0); // temp.x
-					//console.log( temp.x);
-					//camScript.targetSpherical.lerp( new Vector3(camScript.targetSpherical.x, temp.x, camScript.targetSpherical.z), 0.3); // temp.x
-					//camScript.move( 0.01, 0);
-					//camScript.dirty = true;
-				});
+
+                    camPos.set(car.transformComponent.transform.translation);
+                    camPos.add(camOffset)
+                    cam.transformComponent.transform.translation.lerp(camPos, tpf);
+                    cam.transformComponent.transform.lookAt(car.transformComponent.transform.translation,Vector3.UNIT_Y);
+                    cam.transformComponent.setUpdated();
+
+
+                });
 
 
 				// Application code goes here!
